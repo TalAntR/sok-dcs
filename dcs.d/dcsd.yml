@@ -1,0 +1,26 @@
+##############################################################################
+# YAML declaration of the distributed configuration service.
+#
+###############################################################################
+
+domain: "."
+name: dsc
+note: A distributed configuration service.
+workspace: /etc/dsc.d
+
+# Validation schemas for product environments and roles
+schemas:
+  env:
+    - name: production
+      schema: {}
+  roles:
+    # HTTP iterface for configuration settings
+    - name: cell-api
+      schema: {}
+    # Process launcher
+    - name: cell-console
+      schema: {}
+    # Process launcher
+    - name: launcher
+      schema: {}
+  

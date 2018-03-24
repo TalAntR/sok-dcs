@@ -1,1 +1,6 @@
-# sok-dcs
+Learning Go programming
+
+
+# How to build
+
+make

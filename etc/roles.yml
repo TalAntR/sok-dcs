@@ -1,0 +1,22 @@
+environment: !SOK:Environment
+  name: local
+  workspace: ./local
+  note: A single server environment, all services are located on the localhost
+
+roles: &roles
+  # Describe replicas for a API entrypoints
+  cell-api:
+    - manager: dsc.discovery.broadcast
+      options:
+        sources:
+          type: yaml
+          path: 
+        parent: null
+      services:
+        - udp://127.0.0.1:3329
+
+  # Describe command line client
+  cell-console:
+    - manager: null
+      services:
+        - http://127.0.0.1:10080
