@@ -28,7 +28,7 @@ clean:
 	@rm -f $(GOPATH)/src/$(PROJECT)/.gobuild
 
 dcsd: $(GOPATH)/src/$(PROJECT)/.gobuild $(GODEPS)
-	go fmt $(PROJECT)
+	go fmt $(PROJECT) $(PROJECT)/dcs
 	go build -o $@ $(PROJECT)
 
 $(GOPATH)/src/$(PROJECT)/.gobuild:
