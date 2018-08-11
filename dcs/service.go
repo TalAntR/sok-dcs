@@ -6,7 +6,7 @@ type DcsService interface {
 	getSrvOpt(prefix string)
 
 	// Merge set of options
-	mergeSrvOpt(opt []Options)
+	mergeSrvOpt(opt []OptionsTree)
 }
 
 // Data layer of DCS service

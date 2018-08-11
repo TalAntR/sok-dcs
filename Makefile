@@ -40,6 +40,10 @@ $(GOPATH)/src/$(PROJECT)/.gobuild:
 $(GODEPS):
 	go get $@
 
+.PHONY: test
+test:
+	go test
+
 help:
 	go help
 
