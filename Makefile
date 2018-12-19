@@ -24,7 +24,7 @@ default: build;
 build: dcsd;
 
 clean:
-	go clean
+	go clean -i -testcache -x
 	@rm -f $(GOPATH)/src/$(PROJECT)/.gobuild
 
 dcsd: $(GOPATH)/src/$(PROJECT)/.gobuild $(GODEPS)
@@ -41,8 +41,8 @@ $(GODEPS):
 	go get $@
 
 .PHONY: test
-test:
-	go test
+test: $(GOPATH)/src/$(PROJECT)/.gobuild
+	go test ./...
 
 help:
 	go help
