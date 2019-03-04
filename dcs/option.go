@@ -1,7 +1,9 @@
 package dcs
 
 import (
+	"fmt"
 	"reflect"
+	"strings"
 )
 
 type Node struct {
@@ -14,8 +16,38 @@ func (n *Node) Key() string {
 	return n.key
 }
 
+func (n *Node) Value() interface{} {
+	return n.value
+}
+
+func (n *Node) Subtree(key string) *Node {
+	for _, i := range n.descendants {
+		if key == i.key {
+			return i
+		}
+	}
+	return nil
+}
+
 func (n *Node) Resolve(path string) interface{} {
-  	return nil
+	node := n.subtree(strings.Split(path, ":"))
+	if node == nil {
+		return nil
+	}
+	return node.value
+}
+
+func (n *Node) subtree(keys []string) *Node {
+	node := n
+	fmt.Printf("%v", keys)
+	for _, key := range keys {
+		fmt.Printf("%v", key)
+		node = node.Subtree(key)
+		if node == nil {
+			break
+		}
+	}
+	return node
 }
 
 func Map2Tree(key string, m map[string]interface{}) *Node {
