@@ -1,9 +1,10 @@
 package dcs
 
 import (
-	"github.com/go-yaml/yaml"
 	"io/ioutil"
 	"log"
+
+	"github.com/go-yaml/yaml"
 )
 
 func yamlConfig() DcsConfig {

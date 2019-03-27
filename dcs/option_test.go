@@ -9,8 +9,8 @@ func TestMap2Tree(t *testing.T) {
 	m["b"] = "vb"
 
 	n := Map2Tree(":", m)
-	if n.Key() != ":" {
-		t.Errorf("Expected root key is not equal to actual, got: '%s', want: '%s'.", n.Key(), ":")
+	if n.Label() != ":" {
+		t.Errorf("Expected root key is not equal to actual, got: '%s', want: '%s'.", n.Label(), ":")
 	}
 
 	a := n.Subtree("a")

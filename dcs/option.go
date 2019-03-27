@@ -6,13 +6,17 @@ import (
 	"strings"
 )
 
+// The Node struct is a representation of a vertex in configuration tree.
+// Configuration tree is a labeled tree each node of them has some label
+// and assosiated value.
 type Node struct {
 	descendants []*Node
 	key         string
 	value       interface{}
 }
 
-func (n *Node) Key() string {
+// Label method returns a key of configuration item;
+func (n *Node) Label() string {
 	return n.key
 }
 

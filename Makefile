@@ -42,7 +42,7 @@ $(GODEPS):
 
 .PHONY: test
 test: $(GOPATH)/src/$(PROJECT)/.gobuild
-	go test ./...
+	go test -cover ./...
 
 help:
 	go help
