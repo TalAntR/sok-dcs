@@ -13,12 +13,14 @@ func TestMap2Tree(t *testing.T) {
 		t.Errorf("Expected root key is not equal to actual, got: '%s', want: '%s'.", n.Label(), ":")
 	}
 
-	a := n.Subtree("a")
+	key := []string{"a"}
+	a := n.(*Node).Subtree(key)
 	if a.Value() != "va" {
 		t.Errorf("Expected value for 'a' key is not equal to actual, got: '%s', want: '%s'.", a.Value(), "va")
 	}
 
-	bv := n.Resolve("b")
+	bpath := []string{"b"}
+	bv := n.(*Node).Resolve(bpath)
 	if bv != "vb" {
 		t.Errorf("The b element value is not equal to expected one, got: '%s', want: '%s'.", bv, "vb")
 	}
