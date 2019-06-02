@@ -76,12 +76,13 @@ func (n *Node) getDescendant(label string) *Node {
 // MakePath function constructs a path (linear tree) from a collection of vertices
 func MakePath(v0 Vertex, vertices ...Vertex) Tree {
 	n := Node{v0, make([]*Node, 1)}
-	p, t := n, &n
+	p := &n
 	for _, v := range vertices {
-		n = Node{v, make([]*Node, 1)}
-		p.descendants[0], p = &n, n
+		n := Node{v, make([]*Node, 1)}
+		p.descendants[0], p = &n, &n
 	}
-	return t
+	p.descendants = []*Node{}
+	return &n
 }
 
 // MergeTree function ...
