@@ -4,8 +4,8 @@ import (
 	"reflect"
 )
 
-func (n *Node) Resolve(path []string) interface{} {
-	node := n.Subtree(path)
+func (n *Node) Resolve(path []Label) interface{} {
+	node := n.FindSubtree(path)
 	if node == nil {
 		return nil
 	}
@@ -17,14 +17,14 @@ func Map2Tree(key string, m map[string]interface{}) Tree {
 }
 
 func map2Tree(key reflect.Value, value reflect.Value) Tree {
-	nodes := make([]*Node, 0)
+	nodes := make([]Tree, 0)
 	if reflect.Map == value.Kind() {
 		i := 0
-		nodes = make([]*Node, value.Len())
+		nodes = make([]Tree, value.Len())
 		for _, k := range value.MapKeys() {
 			nodes[i] = map2Tree(k, value.MapIndex(k)).(*Node)
 			i++
 		}
 	}
-	return &Node{Vertex{key.String(), value.Interface()}, nodes}
+	return &Node{vertex{Label(key.String()), value.Interface()}, forest{nodes}}
 }

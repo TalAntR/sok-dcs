@@ -1,95 +1,192 @@
 package dcs
 
-// The Tree interface represents a configuration tree with labeled vertex.
-type Tree interface {
-	// The ChildLabels returns a collection of labels for descendants of the root vertex.
-	Descendants() []Tree
+// The Label type is used to mark Tree vertex
+type Label string
 
-	// The Label method returns label of the root vertex in the tree.
-	Label() string
+type Pair struct {
+	a, b interface{}
+}
 
-	// The Value method returns value associated with root vertex.
+// The Vertex a data container for a tree.
+type Vertex interface {
+
+	// The Label method returns label or key of a vertex in tree.
+	Label() Label
+
+	// The Value method returns data associated with this vertex.
 	Value() interface{}
 }
 
-// The TreeSearch interface represents a tree traversal algorithm.
-type TreeSearch interface {
+type null struct{}
 
-	// The Subtree method returns a child tree by specified key.
-	Subtree(path []string) Tree
+// Label method returns a key of a vertex;
+func (v *null) Label() Label {
+	return ""
+}
+
+// Value method returns a value associated with vertex;
+func (v *null) Value() interface{} {
+	return nil
+}
+
+// The Forest interface represents collection of labeled trees.
+type Forest interface {
+
+	// The GetTree retruns a tree which root vertex has given label
+	// or nil if tree for this label is not found
+	GetSubtree(label Label) Tree
+
+	// The GetLabels returns array of root labels for trees in forest
+	GetLabels() []Label
+}
+
+// The Tree interface represents a tree with labeled vertex.
+type Tree interface {
+	Forest
+	Vertex
 }
 
 // The Vertex struct is a representation of a vertex in a tree.
-type Vertex struct {
-	key   string
+type vertex struct {
+	key   Label
 	value interface{}
 }
 
-// Label method returns a key of a vertex;
-func (v *Vertex) Label() string {
+// The Label method returns a label of this vertex;
+func (v *vertex) Label() Label {
 	return v.key
 }
 
 // Value method returns a value associated with vertex;
-func (v *Vertex) Value() interface{} {
+func (v *vertex) Value() interface{} {
 	return v.value
+}
+
+// V function creates a Vertex object for given label and value parameters
+func V(label Label, value interface{}) Vertex {
+	return &vertex{label, value}
+}
+
+type forest struct {
+	descendants []Tree
+}
+
+// GetLabels retruns slice of labels for all child subtrees
+func (f *forest) GetLabels() []Label {
+	labels := make([]Label, len(f.descendants))
+	for i, t := range f.descendants {
+		labels[i] = t.Label()
+	}
+	return labels
+}
+
+// GetSubtree retruns child tree by given label
+func (f *forest) GetSubtree(label Label) Tree {
+	for _, t := range f.descendants {
+		if label == t.Label() {
+			return t
+		}
+	}
+	return nil
+}
+
+// F function creates Forest object for given slice of trees
+func F(descendants []Tree) Forest {
+	return &forest{descendants}
 }
 
 // The Node struct is a representation of a vertex in tree.
 // Configuration tree is a labeled tree each node of them has some label
 // and assosiated value.
 type Node struct {
-	Vertex
-	descendants []*Node
+	vertex
+	forest
 }
 
-// Descendants method returns an array of ...
-func (n *Node) Descendants() []Tree {
-	subtrees := make([]Tree, len(n.descendants))
-	for i := range n.descendants {
-		subtrees[i] = n.descendants[i]
-	}
-	return subtrees
-}
-
-// Subtree method returns ...
-func (n *Node) Subtree(path []string) Tree {
+// FindSubtree method returns a tree by given path
+func (n *Node) FindSubtree(path []Label) Tree {
 	if len(path) < 1 {
 		return n
 	}
-	t := n.getDescendant(path[0])
+	t := n.GetSubtree(path[0])
 	if t != nil {
-		return t.Subtree(path[1:])
+		return t.(*Node).FindSubtree(path[1:])
 	}
 	return nil
 }
 
-func (n *Node) getDescendant(label string) *Node {
-	for _, i := range n.descendants {
-		if label == i.Label() {
-			return i
-		}
-	}
-	return nil
+// // DiffByLeafs ...
+// func DiffByLeafs(t0 Tree, t1 Tree) Tree {
+// 	root := Node{
+// 		vertex{t1.Label(), Pair{t0.Value(), t1.Value()}},
+// 		make([]*Node, 1),
+// 	}
+
+// 	labels := t1.GetLabels()
+// 	for _, l := range labels {
+// 		tree = t0.GetSubtree(l)
+// 		if tree == nil {
+// 			Node{v0, make([]*Node, 1)}
+// 		} else {
+
+// 		}
+// 	}
+// 	return 0
+// }
+
+func createBufferedLeaf(v Vertex, size int) *Node {
+	root := vertex{v.Label(), v.Value()}
+	childs := forest{make([]Tree, size)}
+	return &Node{root, childs}
 }
 
-// MakePath function constructs a path (linear tree) from a collection of vertices
+// MakePath constructs a path (linear tree) from a collection of vertices
 func MakePath(v0 Vertex, vertices ...Vertex) Tree {
-	n := Node{v0, make([]*Node, 1)}
-	p := &n
+	root := createBufferedLeaf(v0, 1)
+	item := root
 	for _, v := range vertices {
-		n := Node{v, make([]*Node, 1)}
-		p.descendants[0], p = &n, &n
+		root := createBufferedLeaf(v, 1)
+		item.descendants[0], item = root, root
 	}
-	p.descendants = []*Node{}
-	return &n
+	item.descendants = []Tree{}
+	return root
 }
 
 // MergeTree function ...
-func MergeTree(t ...Tree) Tree {
-	size := len(t)
-	if size == 1 {
-		return t[0]
+func MergeTree(t Tree, trees ...Tree) Forest {
+	merged := []Tree{t}
+	if len(trees) > 0 {
+		for _, tree := range trees {
+			merged = mergeTree(merged, tree)
+		}
 	}
-	return nil
+	return F(merged)
+}
+
+func mergeTree(f []Tree, t Tree) []Tree {
+	lidx := -1
+	for i, tree := range f {
+		if tree.Label() == t.Label() {
+			lidx = i
+		}
+	}
+	result := make([]Tree, len(f)+1)
+	if lidx < 0 {
+		copy(result, f)
+		result[len(f)] = t
+		return result
+	}
+
+	tree := f[lidx]
+	subtrees := make([]Tree, len(tree.GetLabels()))
+	for i, l := range tree.GetLabels() {
+		subtrees[i] = tree.GetSubtree(l)
+	}
+
+	for _, l := range t.GetLabels() {
+		subtrees = mergeTree(subtrees, t.GetSubtree(l))
+	}
+	r := createBufferedLeaf(t, len(subtrees))
+	copy(r.forest.descendants, subtrees)
+	return []Tree{r}
 }
